@@ -28,36 +28,38 @@ function showHelp()
 function pushTotalCall()
 {
     global $dateNow;
+    global $eDate;
+    global $sDate;
     global $fileCsv;
-    global $client;
     $row = 0;
-    $rawData = array();
-    $date = date_create($dateNow);
-    date_add($date, date_interval_create_from_date_string('-1 hours'));
-    $dateOld = date_format($date, 'Y-m-d H:i:s');
-    echo "Datetime Start => " . $dateOld . "\n";
-    echo "Datetime End   => " . $dateNow . "\n";
-    if (($handle = fopen($fileCsv, "r")) !== FALSE) {
-        while (($data = fgetcsv($handle, 1000000, ",")) !== FALSE) {
-            if (strtotime($data[9]) >= strtotime($dateOld) && strtotime($data[9]) <= strtotime($dateNow)) {
+    $totalDataCall = 0;
+        if (($handle = fopen($fileCsv, "r")) !== FALSE) {
+            while (($data = fgetcsv($handle, 1000000, ",")) !== FALSE) {
+                $num = count($data);
                 $row++;
-                $rawData["data"][] = [
-                    "datetime" => $data[9],
-                    "server" => $client,
-                    "uniqueid" => $data[16],
-                    "total_data" => count($data)
-                ];
+                if (strtotime($data[9]) <= strtotime($sDate)  &&  strtotime($eDate) >= strtotime($data[9])) {
+                    $totalDataCall++;
+                }
+            }
+            echo "Total All Data Call => " . $row . "\n";
+            if ($totalDataCall > 0) {
+                fclose($handle);
+                $BodyMessage = "#ALERT ⚠️
+[!] Call Prosess 
+[!] Ada $totalDataCall Call
+        
+#SERVER_" . exec("hostname | sed -E 's/-|\./_/g'") . "";
+                senTele($BodyMessage);
             }
         }
-        echo "Total Data => " . $row . "\n";
-    }
+    
 }
 
 
 function senTele($BodyMessage)
 {
-    $botToken = "5763080979:AAGpE6w9tN1mt4Mji2d0CPArCUub3HBDK8M";
-    $chatID = -623402830;
+    $botToken = "<TOKEN BOT>";
+    $chatID = <CHATID>;
     $website = "https://api.telegram.org/bot" . $botToken;
 
     $params = [
