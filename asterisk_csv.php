@@ -7,6 +7,7 @@ $eDate = date("Y-m-d 21:59:59");
 $dateNow = date("Y-m-d H:i:s");
 $fileCsv = "/var/log/asterisk/cdr-csv/Master.csv";
 $client = exec("echo $(hostname -s |  cut -d'-' -f 2-4)");
+
 if (count($argv) != 1) {
     if ($argv[1] == "--PUSH-TOTAL-CALL") {
         pushTotalCall();
@@ -49,17 +50,6 @@ function pushTotalCall()
             }
         }
         echo "Total Data => " . $row . "\n";
-        if ($row == 0) {
-            $rawData["data"][] = [
-                "datetime" => $dateNow,
-                "server" => $client,
-                "uniqueid" => "",
-                "total_data" => "0"
-            ];
-            curlData($rawData);
-        } else {
-            curlData($rawData);
-        }
     }
 }
 
